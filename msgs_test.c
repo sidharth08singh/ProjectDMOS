@@ -13,7 +13,10 @@ void producer()
 	portC = portnumber;
 	portnumber++;
 	V(mutex);
-	Send(portnumber, &Ports[portS]);
+	while(1) 
+	{ 
+		Send(portC, 25, &Ports[portS]); // Args -  Source Port Number, Data, Destination Port
+	}
 }
 
 void consumer()
@@ -23,7 +26,10 @@ void consumer()
 	portnumber++;
 	printf("Consumer Listening at Port Number %d\n", portnumber);
 	V(mutex);
-	Receive(&Ports[portS]);
+	while(1) 
+	{ 
+		Receive(&Ports[portS]);
+	}
 }
 
 int main()
@@ -35,7 +41,8 @@ int main()
 	{
 		for(j=0; j<10; j++)
 		{
-			Ports[i].mesg[j] = -1;		
+			Ports[i].mesg[j].data = -1;		
+			Ports[i].mesg[j].srcport = -1;
 		}
 		Ports[i].prod = CreateSem(10);
 		Ports[i].cons = CreateSem(0);
