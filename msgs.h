@@ -21,29 +21,37 @@ struct Semaphore_t* mutex;
 
 //Port_t Ports[100];
 
-void Send(int srcport, int data, Port_p p)
+void Send(int id, int flag, int srcport, int dstport, int data, Port_p p)
 {
-	int i;
 	P(p->prod);
 	P(p->mutex1);
 	// Add data to port
 	p->mesg[p->in].data = data; 
 	p->mesg[p->in].srcport = srcport;
-	printf("Sending data %d in Message slot %d\n", data, p->in);
+	if (flag)
+		printf("Client %d sending data -> %d from source port : %d to dest port : %d in Message slot %d\n", id, data, srcport, dstport, p->in);
+	else
+		printf("Server %d sending data -> %d from source port : %d to dest port : %d in Message slot %d\n", id, data, srcport, dstport, p->in);
 	p->in = (p->in + 1) % 10;
 	V(p->mutex1);
 	V(p->cons);
 }
 
-void Receive(Port_p p)
+Mesg_t Receive(int id, int port, int flag, Port_p p)
 {
-	int i; 
 	P(p->cons);
 	P(p->mutex1);
 	int data = p->mesg[p->out].data;
 	int srcport = p->mesg[p->out].srcport;
-	printf("Received data %d from Message slot %d\n", data, p->out);
+	if(flag)
+		printf("Server %d received data -> %d on port %d from Message slot %d\n", id, data, port, p->out);
+	else
+		printf("Client %d received data -> %d on port %d from Message slot %d\n", id, data, port, p->out);
 	p->out = (p->out + 1) % 10;
 	V(p->mutex1); 
 	V(p->prod);
+	Mesg_t recv_msg; 
+	recv_msg.data = data;
+	recv_msg.srcport = srcport;
+	return recv_msg;
 }

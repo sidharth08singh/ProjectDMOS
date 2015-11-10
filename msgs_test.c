@@ -3,32 +3,51 @@
 #include "msgs.h"
 
 Port_t Ports[100];
-int portnumber = 0;
+int producerID = 0;
+int consumerID = 0; 
+int portnumber = 1;
 int portS;
 int portC;
 
 void producer()
 {
+	int Id;
 	P(mutex);
 	portC = portnumber;
 	portnumber++;
+	Id = producerID;
+	producerID++;
 	V(mutex);
-	while(1) 
+	int i,data;
+	time_t t;
+	srand((unsigned) time(&t));
+	for(i = 0 ; i < 3; i++)
 	{ 
-		Send(portC, 25, &Ports[portS]); // Args -  Source Port Number, Data, Destination Port
+		data = rand() % 1000;	
+		Send(Id, 1, portC, portS, data, &Ports[portS]); // Args -  Id, flag (specifies direction, 1 -> client to server, 2 -> server to client), Source Port Number, Dest Port Number, Data, Destination Port
+		Receive(Id, 0, portC, &Ports[portC]);
 	}
 }
 
 void consumer()
 {
+	int Id;
 	P(mutex);
 	portS = portnumber;
+	printf("#### Consumer %d Listening at Port Number %d ####\n", Id, portnumber);
 	portnumber++;
-	printf("Consumer Listening at Port Number %d\n", portnumber);
+	Id = consumerID;
+	consumerID++;
 	V(mutex);
-	while(1) 
+	int i;
+	Mesg_t rcv_msg;
+	//for(i = 0; i < 3; i++)
+	while(1)
 	{ 
-		Receive(&Ports[portS]);
+		rcv_msg = Receive(Id, 1, portS, &Ports[portS]); // Args - Id, flag (specifies direction, 1 -> server receives, 0 -> client receives) Port Number, Port
+		//Modify Received Message & send back. 
+		rcv_msg.data *= 100;
+		Send(Id, 0,  portS, portC, rcv_msg.data, &Ports[rcv_msg.srcport]);
 	}
 }
 
@@ -51,7 +70,7 @@ int main()
 		Ports[i].out  = 0;
 	}
 	start_thread(producer);
-	//start_thread(producer);
+	start_thread(producer);
         start_thread(consumer);
 	run();
 }
