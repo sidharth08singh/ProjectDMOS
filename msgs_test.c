@@ -6,14 +6,14 @@
 Port_t Ports[100];         // List of 100 ports
 int producerID = 0;	   // To keep track of client IDs	
 int consumerID = 0; 	   // To keep track of server IDs
-int portnumber = 1;	   // To assign a unique port number from 1 to 100 for each client and server
+int portnumber = 0;	   // To assign a unique port number from 1 to 100 for each client and server
 int portS;		   // To keep track of server port 	
 
 void producer()
 {
 	int Id, portC;
 	P(mutex);          
-	portC = portnumber;
+	portC = portnumber % 100; // Port Numbers can be 0 to 99
 	portnumber++;
 	Id = producerID;
 	producerID++;
@@ -24,7 +24,7 @@ void producer()
 	for(i = 0 ; i < 3; i++)
 	{ 
 		data = rand() % 10000;	// Generate a RandoM Number to send. 
-		Send(Id, 1, portC, portS, data, &Ports[portS]); //Send() Args -  Id, flag (specifies direction, 1 -> client to server, 2 -> server to client), Source Port Number, Dest Port Number, Data, Destination Port
+		Send(Id, 1, portC, portS, data, &Ports[portS]); //Send() Args - Id, flag (specifies direction, 1 -> client to server, 2 -> server to client), Source Port Number, Dest Port Number, Data, Destination Port
 		Receive(Id, 0, portC, &Ports[portC]);
 	}
 }
@@ -33,7 +33,7 @@ void consumer()
 {
 	int Id, replyport;
 	P(mutex);
-	portS = portnumber;
+	portS = portnumber % 100; // Port Numbers can be 0 to 99 
 	printf("#### Server %d Listening at Port Number %d ####\n", Id, portnumber);
 	portnumber++;
 	Id = consumerID;
