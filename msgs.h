@@ -1,6 +1,12 @@
 #include "sem.h"
 #define MAX 1000
 
+/* This implementation of msgs.h follows strategy 2. We use :-  
+	a) mutex semaphore per port.
+	b) producer semaphore per port.
+	c) consumer semaphore per port. 
+*/
+
 typedef struct Mesg
 {
 	int data;
@@ -19,15 +25,20 @@ typedef struct Port
 
 struct Semaphore_t* mutex;
 
-//Port_t Ports[100];
-
+/* Args - 
+	id = client/server ID
+	flag = specifies the direction of message flow (1 -> client to server, 0 -> server to client)
+	srcport = sourceport/replyport on which sender will expect a reply. 
+	dstport = destination port on which to send a message (only for printing purposes) 
+	data = the data to be sent in the message (integer in this implementation)
+	Port_p p = the port structure of the destination port 
+*/
 void Send(int id, int flag, int srcport, int dstport, int data, Port_p p)
 {
 	P(p->prod);
 	P(p->mutex1);
-	// Add data to port
-	p->mesg[p->in].data = data; 
-	p->mesg[p->in].srcport = srcport;
+	p->mesg[p->in].data = data;   // Add data to port
+	p->mesg[p->in].srcport = srcport; // Setting source port on which to expect a reply
 	if (flag)
 		printf("Client %d sending data -> %d from source port : %d to dest port : %d in Message slot %d\n", id, data, srcport, dstport, p->in);
 	else
@@ -37,12 +48,19 @@ void Send(int id, int flag, int srcport, int dstport, int data, Port_p p)
 	V(p->cons);
 }
 
-Mesg_t Receive(int id, int port, int flag, Port_p p)
+
+/* Args - 
+	id = client/server ID
+	flag = specifies the direction of message flow (1 -> server receives, 0 -> client receives) 
+	port = the port number on which to receive (only for printing purposes)
+	Port_p p = the port structure from which to extract message. 
+*/
+Mesg_t Receive(int id, int flag, int port, Port_p p)
 {
 	P(p->cons);
 	P(p->mutex1);
-	int data = p->mesg[p->out].data;
-	int srcport = p->mesg[p->out].srcport;
+	int data = p->mesg[p->out].data; // Extracting data from port
+	int srcport = p->mesg[p->out].srcport; // Extracting source port on which to send a reply
 	if(flag)
 		printf("Server %d received data -> %d on port %d from Message slot %d\n", id, data, port, p->out);
 	else
