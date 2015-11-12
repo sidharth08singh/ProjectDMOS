@@ -1,3 +1,9 @@
+/*
+Authors         :- Avijit Singh Vishen, Shankar Krishnamurthy, Sidharth Singh
+Filename        :- threads.h 
+Description     :- This file implements start_thread, yield and run functions. 
+*/
+
 #include "q.h"
 
 struct node* RunQ;

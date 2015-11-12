@@ -1,3 +1,9 @@
+/*
+Authors         :- Avijit Singh Vishen, Shankar Krishnamurthy, Sidharth Singh
+Filename        :- q.h 
+Description     :- This file implements a circular queue using a doubly linked list
+*/
+
 #include "TCB.h"
 
 struct node {

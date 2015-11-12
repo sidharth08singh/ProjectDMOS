@@ -1,3 +1,9 @@
+/*
+Authors         :- Avijit Singh Vishen, Shankar Krishnamurthy, Sidharth Singh
+Filename        :- TCB.h 
+Description     :- This file defines a TCB structure and implements the init_TCB function
+*/
+
 #include<string.h>
 #include<ucontext.h>
 

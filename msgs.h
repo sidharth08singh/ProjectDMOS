@@ -1,3 +1,9 @@
+/*
+Authors         :- Avijit Singh Vishen, Shankar Krishnamurthy, Sidharth Singh
+Filename        :- msgs.h 
+Description     :- This file implements Send and Receive Functions for Message Passing. 
+*/
+
 #include "sem.h"
 #define MAX 1000
 
@@ -23,7 +29,7 @@ typedef struct Port
 	struct Semaphore_t* mutex1;
 } Port_t, *Port_p;
 
-struct Semaphore_t* mutex;
+struct Semaphore_t* mutex_pid;
 
 /* Args - 
 	id = client/server ID
